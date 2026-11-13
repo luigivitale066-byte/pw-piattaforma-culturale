@@ -1,0 +1,15 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/cultural_db}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD}
+  jackson:
+    default-property-inclusion: non_null
+
+app:
+  jwt:
+    secret-base64: ${JWT_SECRET_BASE64}
+    expiration-seconds: ${JWT_EXPIRATION_SECONDS:3600}
