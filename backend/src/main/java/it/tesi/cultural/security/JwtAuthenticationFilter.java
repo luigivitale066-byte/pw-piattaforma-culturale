@@ -40,6 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
                 Claims claims = jwtService.parseToken(authorization.substring(7));
                 String username = claims.getSubject();
+                // Il ruolo viene letto dal DB: un token gia emesso non conserva permessi revocati.
                 List<String> roles = jdbcTemplate.query(
                         "SELECT role::text FROM users WHERE username = ?",
                         (row, index) -> row.getString(1), username);

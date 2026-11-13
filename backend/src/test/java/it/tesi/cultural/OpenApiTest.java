@@ -10,6 +10,7 @@ class OpenApiTest {
 
     @Test
     void specificationParsesAndReferencesResolve() {
+        // Oltre al parsing, si controllano gli identificativi numerici esposti dal contratto.
         var result = new OpenAPIV3Parser().readLocation(
                 Path.of("..", "openapi.yaml").toAbsolutePath().toString(), null, null);
         assertThat(result.getMessages()).isEmpty();

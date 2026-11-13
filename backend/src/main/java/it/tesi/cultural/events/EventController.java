@@ -37,6 +37,7 @@ public class EventController {
     List<Event> list(
             @RequestParam(required = false) OffsetDateTime from,
             @RequestParam(required = false) OffsetDateTime to) {
+        // Respinge subito un intervallo incoerente, prima di interrogare il database.
         if (from != null && to != null && to.isBefore(from)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "'to' must not be before 'from'");
         }
@@ -69,6 +70,7 @@ public class EventController {
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_OPERATOR')")
     Event create(@Valid @RequestBody EventRequest request) {
+        // Il database applica lo stesso vincolo, ma qui l'errore diventa piu leggibile.
         if (request.endDatetime() != null && request.endDatetime().isBefore(request.startDatetime())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "endDatetime must not be before startDatetime");

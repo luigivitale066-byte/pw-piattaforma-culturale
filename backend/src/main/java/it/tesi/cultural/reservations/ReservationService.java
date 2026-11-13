@@ -22,6 +22,7 @@ public class ReservationService {
 
     @Transactional
     public Reservation create(Integer eventId, int seats, String username) {
+        // Il lock resta attivo fino alla fine della transazione e serializza le richieste sullo stesso evento.
         Integer capacity;
         try {
             capacity = jdbcTemplate.queryForObject(
@@ -42,6 +43,7 @@ public class ReservationService {
                 FROM reservations
                 WHERE event_id = ? AND status IN ('PENDING', 'CONFIRMED')
                 """, Long.class, eventId);
+            // Si contano solo i posti ancora impegnati: quelli annullati tornano disponibili.
         if (reserved + seats > capacity) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Not enough seats available");
         }
@@ -65,6 +67,7 @@ public class ReservationService {
 
     @Transactional(readOnly = true)
     public List<Reservation> list(String username, boolean isStaff) {
+        // Il filtro viene applicato anche nella query, non soltanto nell'interfaccia.
         String sql = """
                 SELECT r.id, r.user_id, u.username, r.event_id, r.seats, r.status::text AS status, r.created_at
                 FROM reservations r

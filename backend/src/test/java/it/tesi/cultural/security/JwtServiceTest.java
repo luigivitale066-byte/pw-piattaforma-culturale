@@ -25,6 +25,7 @@ class JwtServiceTest {
 
     @Test
     void rejectsTokenSignedWithAnotherKey() {
+        // Una firma creata con una chiave diversa non deve essere accettata dal parser.
         byte[] firstSecret = new byte[32];
         byte[] secondSecret = new byte[32];
         new SecureRandom().nextBytes(firstSecret);

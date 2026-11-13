@@ -20,6 +20,7 @@ const messages = {
   "Active reservation not found for this user": "La prenotazione non e piu attiva o non ti appartiene."
 };
 
+// Elementi creati via DOM: i testi passano da textContent e non vengono interpretati come HTML.
 function element(tag, text, className) {
   const node = document.createElement(tag);
   if (text !== undefined && text !== null) node.textContent = text;
@@ -58,6 +59,7 @@ async function run(action) {
   }
 }
 
+// Un solo punto d'accesso alle API gestisce autenticazione, JSON e messaggi d'errore.
 async function api(path, options = {}) {
   const headers = { Accept: "application/json" };
   if (state.token) headers.Authorization = `Bearer ${state.token}`;
@@ -103,6 +105,7 @@ function clearSession() {
   $("#occupancy").replaceChildren();
 }
 
+// Aggiorna i comandi visibili in base alla sessione e al ruolo corrente.
 function renderAccount() {
   const account = $("#account");
   account.replaceChildren();
@@ -180,6 +183,7 @@ function card(title, subtitle, kind, action) {
 }
 
 let eventRequest = 0;
+// Il contatore scarta le risposte vecchie quando i filtri vengono inviati rapidamente.
 async function loadEvents() {
   const version = ++eventRequest;
   const target = $("#event-list");
@@ -211,6 +215,7 @@ async function loadEvents() {
 }
 
 let catalogRequest = 0;
+// La stessa protezione evita che una ricerca lenta sovrascriva quella piu recente.
 async function loadCatalog() {
   const version = ++catalogRequest;
   const target = $("#catalog-list");
@@ -248,6 +253,7 @@ function labeled(label, input) {
 }
 
 let detailRequest = 0;
+// Carica insieme il contenuto e i feedback, poi compone il dettaglio nel dialogo.
 async function openDetail(kind, id) {
   const version = ++detailRequest;
   const dialog = $("#detail-dialog");
@@ -350,6 +356,7 @@ async function confirmCancellation() {
   return new Promise(resolve => dialog.addEventListener("close", () => resolve(dialog.returnValue === "yes"), { once: true }));
 }
 
+// Le prenotazioni sono filtrate dal server; qui si aggiungono titolo e azioni disponibili.
 async function loadReservations() {
   const target = $("#reservation-list");
   const user = state.user;
@@ -464,6 +471,7 @@ async function loadDashboard() {
   }
 }
 
+// Accesso e registrazione condividono il modulo; solo la registrazione crea l'account.
 $("#auth-form").addEventListener("submit", event => {
   event.preventDefault();
   run(async () => {
@@ -509,6 +517,7 @@ function createForm(selector, endpoint, build, success) {
   });
 }
 
+// I dati di data e numerici diventano i tipi attesi dall'API prima dell'invio.
 createForm("#create-event", "/events", data => {
   const start = new Date(data.startDatetime);
   const end = data.endDatetime ? new Date(data.endDatetime) : null;
@@ -539,7 +548,7 @@ async function restoreSession() {
   try {
     state.user = await api("/users/me");
   } catch (error) {
-    // 401 già gestito da api(); per altri errori si scarta il token salvato
+    // Il 401 ha gia cancellato la sessione; anche un ripristino fallito non deve lasciare un token inutilizzabile.
     if (state.token) clearSession();
   }
   renderAccount();

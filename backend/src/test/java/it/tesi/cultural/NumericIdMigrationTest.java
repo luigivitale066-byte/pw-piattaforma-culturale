@@ -16,6 +16,7 @@ class NumericIdMigrationTest {
 
     @Test
     void migratesAllTablesPreservingValuesLinksNullsConstraintsAndSequences() throws Exception {
+        // Ogni esecuzione lavora in uno schema isolato, rimosso anche in caso di errore.
         String schema = "tesi_migration_" + UUID.randomUUID().toString().replace("-", "");
         String url = System.getenv().getOrDefault("TEST_DATABASE_URL",
                 "jdbc:postgresql://localhost:5432/cultural_db");
@@ -57,6 +58,7 @@ class NumericIdMigrationTest {
                         SELECT NULL, id, 3 FROM events;
                         """);
                 statement.execute(migration);
+                // La migrazione deve conservare collegamenti, vincoli e prossimi identificativi.
                 try (var rows = statement.executeQuery("""
                         SELECT COUNT(*) FROM information_schema.tables
                         WHERE table_schema = current_schema() AND table_name = 'visit_logs'

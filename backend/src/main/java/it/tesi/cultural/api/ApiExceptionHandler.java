@@ -16,6 +16,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 @RestControllerAdvice
 public class ApiExceptionHandler {
 
+    // Mantiene uniforme il formato degli errori restituiti dalle API.
     @ExceptionHandler(ResponseStatusException.class)
     ResponseEntity<Map<String, String>> handleStatus(ResponseStatusException exception) {
         String message = exception.getReason() == null ? "Request failed" : exception.getReason();
@@ -24,6 +25,7 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException exception) {
+        // Mostra il primo campo non valido, evitando risposte troppo verbose.
         String message = exception.getBindingResult().getFieldErrors().stream()
                 .findFirst()
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())

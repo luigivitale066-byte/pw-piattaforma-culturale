@@ -34,6 +34,7 @@ public class FeedbackController {
     List<Feedback> list(
             @RequestParam(required = false) Integer itemId,
             @RequestParam(required = false) Integer eventId) {
+        // Un feedback riguarda un solo tipo di contenuto alla volta.
         if (itemId != null && eventId != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Choose either itemId or eventId");
         }
@@ -48,11 +49,13 @@ public class FeedbackController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     Feedback create(@Valid @RequestBody FeedbackRequest request, Authentication authentication) {
+        // Anche la richiesta in scrittura deve indicare esattamente un destinatario.
         if ((request.itemId() == null) == (request.eventId() == null)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Choose exactly one item or event");
         }
         String table = request.itemId() != null ? "catalog_items" : "events";
         Integer target = request.itemId() != null ? request.itemId() : request.eventId();
+        // Il nome della tabella proviene solo da questa scelta interna, non dal client.
         if (jdbc.queryForObject("SELECT COUNT(*) FROM " + table + " WHERE id = ?", Long.class, target) == 0) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Feedback target not found");
         }

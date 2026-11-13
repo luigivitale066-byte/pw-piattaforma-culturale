@@ -1,9 +1,9 @@
--- PostgreSQL schema for Cultural Management Platform (MVP)
--- Identifiers are automatically generated sequential integers.
+-- Schema PostgreSQL della piattaforma culturale (MVP).
+-- Gli identificativi numerici vengono generati dal database.
 
 BEGIN;
 
--- Enum types
+-- Valori ammessi per ruoli e stato delle prenotazioni.
 DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'role_enum') THEN
         CREATE TYPE role_enum AS ENUM ('ROLE_ADMIN', 'ROLE_OPERATOR', 'ROLE_USER');
@@ -13,7 +13,7 @@ DO $$ BEGIN
     END IF;
 END$$;
 
--- Users
+-- Account e ruolo assegnato dall'applicazione.
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     username VARCHAR(100) NOT NULL UNIQUE,
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Catalog items
+-- Contenuti consultabili nel catalogo.
 CREATE TABLE IF NOT EXISTS catalog_items (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     title VARCHAR(512) NOT NULL,
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS catalog_items (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Events
+-- Appuntamenti, con controlli su capienza, prezzo e date.
 CREATE TABLE IF NOT EXISTS events (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     title VARCHAR(512) NOT NULL,
@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS events (
         CHECK (end_datetime IS NULL OR end_datetime >= start_datetime)
 );
 
--- Apply event constraints and defaults to existing tables as well.
+-- Applica gli stessi vincoli e valori predefiniti anche alle tabelle gia esistenti.
 UPDATE events
 SET price = 0
 WHERE price IS NULL;
@@ -83,7 +83,7 @@ BEGIN
     END IF;
 END $$;
 
--- Reservations
+-- Prenotazioni e posti occupati per ciascun evento.
 CREATE TABLE IF NOT EXISTS reservations (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS reservations (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Allow a new reservation after cancellation, while keeping one active reservation per user/event.
+-- Dopo un annullamento e possibile prenotare di nuovo, ma resta una sola prenotazione attiva per coppia utente/evento.
 ALTER TABLE reservations
     DROP CONSTRAINT IF EXISTS one_active_reservation_per_user_event;
 
@@ -101,7 +101,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_reservations_one_active_per_user_event
     ON reservations (user_id, event_id)
     WHERE status IN ('PENDING', 'CONFIRMED');
 
--- Feedbacks
+-- Il riferimento all'autore resta facoltativo se l'account viene eliminato.
 CREATE TABLE IF NOT EXISTS feedbacks (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
@@ -112,20 +112,19 @@ CREATE TABLE IF NOT EXISTS feedbacks (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Apply the nullable user reference to existing tables as well.
+-- Rende facoltativo l'autore anche nelle installazioni gia esistenti.
 ALTER TABLE feedbacks
     ALTER COLUMN user_id DROP NOT NULL;
 
--- Indexes
+-- Indici usati per ordinare gli eventi e cercare nel catalogo.
 CREATE INDEX IF NOT EXISTS idx_events_start ON events(start_datetime);
 CREATE INDEX IF NOT EXISTS idx_catalog_title ON catalog_items USING gin (to_tsvector('english', title || ' ' || coalesce(description,'')));
 
--- Note on reservations capacity enforcement:
--- The application must enforce capacity atomically. Two concrete approaches:
--- 1) SELECT capacity FROM events WHERE id = :id FOR UPDATE; then sum PENDING/CONFIRMED seats, check capacity and insert within the same transaction.
--- 2) Keep an available_seats column on events and update it with "UPDATE events SET available_seats = available_seats - :seats WHERE id = :id AND available_seats >= :seats" returning rows affected = 1 means success.
+-- La capienza va verificata in modo atomico nell'applicazione. Si puo bloccare la riga
+-- dell'evento con FOR UPDATE, sommare i posti attivi e inserire nella stessa transazione;
+-- in alternativa si puo aggiornare un contatore dei posti disponibili con una condizione.
 
--- Example seed (optional):
--- INSERT INTO users (username, email, password_hash, role) VALUES ('admin', 'admin@example.com', '<bcrypt-hash>', 'ROLE_ADMIN');
+-- Esempio facoltativo: creare un amministratore usando un hash BCrypt valido.
+-- INSERT INTO users (username, email, password_hash, role) VALUES ('admin', 'admin@example.com', '<hash-bcrypt>', 'ROLE_ADMIN');
 
 COMMIT;

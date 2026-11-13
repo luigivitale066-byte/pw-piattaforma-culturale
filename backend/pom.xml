@@ -18,11 +18,13 @@
     <description>Backend MVP for a cultural organization platform</description>
 
     <properties>
+        <!-- Versioni e livello Java condivisi dalle dipendenze del progetto. -->
         <java.version>21</java.version>
         <jjwt.version>0.12.6</jjwt.version>
     </properties>
 
     <dependencies>
+        <!-- Web, accesso SQL, sicurezza e validazione delle richieste. -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -49,6 +51,7 @@
             <artifactId>jjwt-api</artifactId>
             <version>${jjwt.version}</version>
         </dependency>
+        <!-- Dipendenze usate solo per i test e la lettura del contratto OpenAPI. -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-impl</artifactId>

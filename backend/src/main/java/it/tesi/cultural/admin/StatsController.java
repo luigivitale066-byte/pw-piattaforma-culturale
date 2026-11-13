@@ -17,9 +17,11 @@ public class StatsController {
 
     @GetMapping("/api/admin/stats")
     Stats stats() {
+        // Il conteggio totale include anche le prenotazioni annullate, come indicato in dashboard.
         long users = jdbc.queryForObject("SELECT COUNT(*) FROM users", Long.class);
         long reservations = jdbc.queryForObject("SELECT COUNT(*) FROM reservations", Long.class);
         List<Occupancy> occupancy = jdbc.query("""
+            -- L'occupazione considera i posti attivi; la capienza zero evita divisioni non valide.
                 SELECT e.id, CASE WHEN e.capacity = 0 THEN 0
                     ELSE ROUND(100.0 * COALESCE(SUM(r.seats), 0) / e.capacity, 2)
                     END AS occupancy
