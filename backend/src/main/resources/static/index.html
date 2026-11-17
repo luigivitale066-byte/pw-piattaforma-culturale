@@ -9,12 +9,14 @@
   <script src="/app.js" defer></script>
 </head>
 <body>
+  <!-- Intestazione e accesso: i comandi vengono aggiornati in base alla sessione. -->
   <a class="skip-link" href="#main">Vai al contenuto</a>
   <header class="site-header">
     <a class="brand" href="/" aria-label="Trame, pagina iniziale"><span class="brand-mark" aria-hidden="true">T.</span> trame<span class="brand-sub">SPAZIO CULTURALE</span></a>
     <div id="account" class="account"></div>
   </header>
   <main id="main">
+    <!-- Il primo schermo presenta gli eventi, accessibili anche senza account. -->
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero-copy"><p class="eyebrow">UN LUOGO, TANTE STORIE</p><h1 id="hero-title">La cultura si vive.<br>Insieme.</h1><p>Esplora il patrimonio, scopri gli appuntamenti e prenota il tuo prossimo incontro con la cultura.</p><button id="explore" class="primary">Scopri gli eventi <span aria-hidden="true">&rarr;</span></button></div>
       <div class="hero-art" aria-hidden="true"><div class="art-arch"><div class="art-orbit"></div><div class="art-vase"></div></div><span>ARTE / INCONTRI / COMUNIT&Agrave;</span></div>
@@ -26,6 +28,7 @@
       <button data-view="manage" hidden>Gestione</button>
       <button data-view="dashboard" hidden>Dashboard</button>
     </nav>
+    <!-- Elenco pubblico con filtri temporali. -->
     <section id="events" class="view" aria-labelledby="events-title">
       <div class="section-heading"><div><p class="eyebrow">IL PROGRAMMA</p><h2 id="events-title" tabindex="-1">Incontriamoci qui</h2></div><p>Visite, laboratori e nuove prospettive.</p></div>
       <form id="event-filter" class="filters">
@@ -36,6 +39,7 @@
       </form>
       <div id="event-list" class="card-grid" aria-live="polite"></div>
     </section>
+    <!-- Il catalogo usa ricerca testuale e paginazione lato server. -->
     <section id="catalog" class="view" hidden aria-labelledby="catalog-title">
       <div class="section-heading"><div><p class="eyebrow">IL NOSTRO PATRIMONIO</p><h2 id="catalog-title" tabindex="-1">Storie da scoprire</h2></div><p>Opere e contenuti, sempre a portata di mano.</p></div>
       <form id="catalog-filter" class="filters">
@@ -47,10 +51,12 @@
       <div id="catalog-list" class="card-grid" aria-live="polite"></div>
       <div class="pagination"><button id="previous" class="secondary">Precedente</button><span id="page-number"></span><button id="next" class="secondary">Successiva</button></div>
     </section>
+    <!-- Le sezioni personali e di gestione sono mostrate solo ai ruoli autorizzati. -->
     <section id="reservations" class="view" hidden aria-labelledby="reservations-title">
       <div class="section-heading"><div><p class="eyebrow">I TUOI APPUNTAMENTI</p><h2 id="reservations-title" tabindex="-1">Le prenotazioni</h2></div><button id="refresh-reservations" class="secondary">Aggiorna</button></div>
       <p id="reservation-help"></p><div id="reservation-list" class="card-grid" aria-live="polite"></div>
     </section>
+    <!-- Strumenti di inserimento riservati a operatori e amministratori. -->
     <section id="manage" class="view" hidden aria-labelledby="manage-title">
       <div class="section-heading"><div><p class="eyebrow">AREA OPERATORI</p><h2 id="manage-title" tabindex="-1">Dai spazio alla cultura</h2></div></div>
       <div class="management-grid">
@@ -72,6 +78,7 @@
         </form>
       </div>
     </section>
+    <!-- Indicatori e assegnazione dei ruoli sono riservati agli amministratori. -->
     <section id="dashboard" class="view" hidden aria-labelledby="dashboard-title">
       <div class="section-heading"><div><p class="eyebrow">AREA AMMINISTRATORI</p><h2 id="dashboard-title" tabindex="-1">La cultura, in numeri</h2></div><button id="refresh-dashboard" class="secondary">Aggiorna</button></div>
       <div id="stats" class="stats-grid" aria-live="polite"></div>
@@ -80,6 +87,7 @@
     </section>
   </main>
   <footer><a class="brand" href="/">trame.</a><p>Uno spazio digitale per condividere il patrimonio culturale.<br>Prototipo universitario &middot; Nessun pagamento online.</p></footer>
+  <!-- Dialoghi riutilizzati per accesso, dettagli e conferma di annullamento. -->
   <dialog id="auth-dialog" aria-labelledby="auth-title">
     <button class="close" type="button" data-close aria-label="Chiudi">&times;</button>
     <p class="eyebrow">BENVENUTO IN TRAME</p><h2 id="auth-title">Accedi al tuo spazio</h2>

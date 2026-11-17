@@ -51,6 +51,7 @@ public class UserController {
     UserResponse changeRole(@PathVariable Integer id, @Valid @RequestBody RoleRequest request,
             Authentication authentication) {
 
+        // La serializzazione evita che due amministratori si rimuovano i permessi a vicenda.
         jdbc.execute("LOCK TABLE users IN SHARE ROW EXCLUSIVE MODE");
         var caller = jdbc.query("""
                 SELECT id, username, email, role::text AS role, created_at

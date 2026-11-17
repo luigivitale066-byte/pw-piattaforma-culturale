@@ -20,6 +20,7 @@ public class JwtService {
     public JwtService(
             @Value("${app.jwt.secret-base64}") String secretBase64,
             @Value("${app.jwt.expiration-seconds}") long expirationSeconds) {
+        // La chiave viene fornita da configurazione e non viene salvata nel sorgente.
         byte[] secretBytes = Decoders.BASE64.decode(secretBase64);
         if (expirationSeconds <= 0) {
             throw new IllegalArgumentException("JWT expiration must be positive");
@@ -40,6 +41,7 @@ public class JwtService {
     }
 
     public Claims parseToken(String token) {
+        // La libreria verifica la firma e la scadenza prima di restituire i claim.
         return Jwts.parser()
                 .verifyWith(signingKey)
                 .build()

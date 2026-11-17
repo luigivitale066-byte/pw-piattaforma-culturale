@@ -35,6 +35,7 @@ public class AuthService {
     }
 
     public UserResponse register(RegisterRequest request) {
+        // BCrypt considera al massimo 72 byte: il limite va misurato sulla codifica UTF-8.
         if (request.password().getBytes(StandardCharsets.UTF_8).length > 72) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password exceeds 72 UTF-8 bytes");
         }
@@ -52,6 +53,7 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest request) {
+        // La stessa verifica preliminare evita comportamenti diversi da quelli di BCrypt.
         if (request.password().getBytes(StandardCharsets.UTF_8).length > 72) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password");
         }
@@ -66,6 +68,7 @@ public class AuthService {
             credentials = Optional.empty();
         }
 
+        // La risposta d'errore resta identica se manca l'utente o la password non coincide.
         Credentials user = credentials
                 .filter(value -> passwordEncoder.matches(request.password(), value.passwordHash()))
                 .orElseThrow(() -> new ResponseStatusException(

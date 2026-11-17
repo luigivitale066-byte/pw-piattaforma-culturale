@@ -31,6 +31,7 @@ class ReservationServiceTest {
 
     @Test
     void rejectsReservationWhenEventCapacityIsAlreadyFull() {
+                // A capienza esaurita il servizio non deve arrivare alla query di inserimento.
         Integer eventId = 1;
         when(jdbcTemplate.queryForObject(
                 anyString(), eq(Integer.class), any(Object[].class)))

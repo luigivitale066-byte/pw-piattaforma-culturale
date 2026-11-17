@@ -4,6 +4,7 @@ $oldPassword = $env:DATABASE_PASSWORD
 $oldSecret = $env:JWT_SECRET_BASE64
 
 try {
+    # Usa il JDK indicato dall'utente, lasciando invariato il PATH al termine.
     if ($env:JAVA_HOME -and (Test-Path "$env:JAVA_HOME\bin\java.exe")) {
         $env:PATH = "$env:JAVA_HOME\bin;$env:PATH"
     }
@@ -15,10 +16,12 @@ try {
         throw 'Maven not found. Add Maven 3.9+ to PATH before starting.'
     }
     if (-not $env:DATABASE_PASSWORD) {
+        # La password viene richiesta in forma protetta e resta solo nell'ambiente del processo.
         $securePassword = Read-Host 'PostgreSQL password' -AsSecureString
         $env:DATABASE_PASSWORD = [Net.NetworkCredential]::new('', $securePassword).Password
     }
     if (-not $env:JWT_SECRET_BASE64) {
+        # In sviluppo viene generata una chiave temporanea senza scriverla su disco.
         $bytes = New-Object byte[] 32
         $random = [Security.Cryptography.RandomNumberGenerator]::Create()
         try {
@@ -34,6 +37,7 @@ try {
         throw "Backend exited with code $LASTEXITCODE. Check the Maven output above."
     }
 } finally {
+    # Ripristina i valori originali anche se Maven termina con un errore.
     $env:PATH = $oldPath
     $env:DATABASE_PASSWORD = $oldPassword
     $env:JWT_SECRET_BASE64 = $oldSecret

@@ -37,6 +37,7 @@ public class CatalogController {
             @RequestParam(required = false) String category,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
+                // Il limite massimo impedisce richieste che carichino pagine sproporzionate.
         if (page < 0 || size < 1 || size > 100) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, "page must be non-negative and size must be between 1 and 100");
@@ -71,6 +72,7 @@ public class CatalogController {
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_OPERATOR')")
     CatalogItem create(@Valid @RequestBody CatalogItemRequest request) {
+                // I collegamenti esterni sono limitati ai protocolli navigabili dalla pagina.
         if (request.mediaUrl() != null && !"https".equalsIgnoreCase(request.mediaUrl().getScheme())
                 && !"http".equalsIgnoreCase(request.mediaUrl().getScheme())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "mediaUrl must use HTTP or HTTPS");

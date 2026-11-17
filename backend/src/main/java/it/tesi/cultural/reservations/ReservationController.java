@@ -36,6 +36,7 @@ public class ReservationController {
 
     @GetMapping("/reservations")
     List<Reservation> list(Authentication authentication) {
+        // Lo staff vede l'elenco completo; gli altri utenti solo le proprie prenotazioni.
         boolean isStaff = authentication.getAuthorities().stream()
                 .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN")
                         || authority.getAuthority().equals("ROLE_OPERATOR"));
@@ -44,6 +45,7 @@ public class ReservationController {
 
     @PutMapping("/reservations/{id}/cancel")
     Reservation cancel(@PathVariable Integer id, Authentication authentication) {
+        // Solo l'amministratore puo annullare una prenotazione altrui.
         boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
         return reservationService.cancel(id, authentication.getName(), isAdmin);

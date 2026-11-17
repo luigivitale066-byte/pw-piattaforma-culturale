@@ -1,6 +1,8 @@
+# Porta HTTP modificabile senza intervenire sui file di configurazione.
 server:
   port: ${SERVER_PORT:8080}
 
+# Connessione al database e serializzazione delle risposte JSON.
 spring:
   datasource:
     url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/cultural_db}
@@ -9,6 +11,7 @@ spring:
   jackson:
     default-property-inclusion: non_null
 
+# Parametri usati per firmare e far scadere i token di accesso.
 app:
   jwt:
     secret-base64: ${JWT_SECRET_BASE64}

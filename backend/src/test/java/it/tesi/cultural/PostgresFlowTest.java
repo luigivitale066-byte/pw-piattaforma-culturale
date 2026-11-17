@@ -53,6 +53,7 @@ class PostgresFlowTest {
 
     @DynamicPropertySource
     static void database(DynamicPropertyRegistry registry) throws Exception {
+                // I test non toccano le tabelle locali: schema, chiave JWT e dati sono temporanei.
         try (var connection = DriverManager.getConnection(URL, USER, PASSWORD);
                 var statement = connection.createStatement()) {
             statement.execute("CREATE SCHEMA " + SCHEMA);
@@ -79,6 +80,7 @@ class PostgresFlowTest {
 
     @BeforeEach
     void users() throws Exception {
+                // Ogni scenario parte dagli stessi account e da sequenze azzerate.
         http.getRestTemplate().setRequestFactory(new JdkClientHttpRequestFactory());
         jdbc.execute("TRUNCATE feedbacks, reservations, catalog_items, events, users RESTART IDENTITY");
         String hash = encoder.encode("TestPassword123!");
@@ -183,6 +185,7 @@ class PostgresFlowTest {
 
     @Test
     void concurrentReservationsNeverExceedCapacity() throws Exception {
+                // Le due richieste partono insieme per contendersi l'unico posto disponibile.
         String event = event(1);
         var start = new CountDownLatch(1);
         try (var executor = Executors.newFixedThreadPool(2)) {
@@ -260,6 +263,7 @@ class PostgresFlowTest {
 
     @Test
     void concurrentAdminsCannotRemoveEachOthersAccess() throws Exception {
+                // Il lock sul cambio ruolo deve impedire che entrambi perdano i privilegi.
         int aliceId = jdbc.queryForObject("SELECT id FROM users WHERE username='alice'", Integer.class);
         int adminId = jdbc.queryForObject("SELECT id FROM users WHERE username='admin'", Integer.class);
         assertStatus(request(HttpMethod.PUT, "/api/admin/users/" + aliceId + "/role",

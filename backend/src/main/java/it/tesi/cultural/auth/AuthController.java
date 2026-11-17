@@ -24,6 +24,7 @@ public class AuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
+    // I vincoli sui record controllano la richiesta prima di raggiungere il servizio.
     UserResponse register(@Valid @RequestBody RegisterRequest request) {
         return authService.register(request);
     }
